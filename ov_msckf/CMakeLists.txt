@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.5  )
 project(ov_msckf)
 
 # Include libraries (if we don't have opencv 4, then fallback to opencv 3)
@@ -8,7 +8,7 @@ find_package(OpenCV 3 QUIET)
 if (NOT OpenCV_FOUND)
     find_package(OpenCV 4 REQUIRED)
 endif ()
-find_package(Boost REQUIRED COMPONENTS system filesystem thread date_time)
+find_package(Boost REQUIRED COMPONENTS filesystem thread date_time)
 find_package(Ceres REQUIRED)
 message(STATUS "OPENCV: " ${OpenCV_VERSION} " | BOOST: " ${Boost_VERSION} " | CERES: " ${Ceres_VERSION})
 

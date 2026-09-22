@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.5)
 
 # Find ros dependencies
 find_package(ament_cmake REQUIRED)
@@ -47,10 +47,12 @@ list(APPEND LIBRARY_SOURCES
 )
 file(GLOB_RECURSE LIBRARY_HEADERS "src/*.h")
 add_library(ov_core_lib SHARED ${LIBRARY_SOURCES} ${LIBRARY_HEADERS})
-ament_target_dependencies(ov_core_lib rclcpp cv_bridge)
+target_link_libraries(ov_core_lib rclcpp::rclcpp cv_bridge::cv_bridge)
 target_link_libraries(ov_core_lib ${thirdparty_libraries})
-target_include_directories(ov_core_lib PUBLIC src/)
+target_include_directories(ov_core_lib PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/> $<INSTALL_INTERFACE:include>)
 install(TARGETS ov_core_lib
+        EXPORT ov_core
+        ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin
         PUBLIC_HEADER DESTINATION include
@@ -61,6 +63,8 @@ install(DIRECTORY src/
 )
 ament_export_include_directories(include)
 ament_export_libraries(ov_core_lib)
+
+ament_export_targets(ov_core)
 
 ##################################################
 # Make binary files!
@@ -73,12 +77,12 @@ ament_export_libraries(ov_core_lib)
 #endif ()
 
 add_executable(test_webcam src/test_webcam.cpp)
-ament_target_dependencies(test_webcam rclcpp cv_bridge)
+target_link_libraries(test_webcam rclcpp::rclcpp cv_bridge::cv_bridge)
 target_link_libraries(test_webcam ov_core_lib ${thirdparty_libraries})
 install(TARGETS test_webcam DESTINATION lib/${PROJECT_NAME})
 
 add_executable(test_profile src/test_profile.cpp)
-ament_target_dependencies(test_profile rclcpp cv_bridge)
+target_link_libraries(test_profile rclcpp::rclcpp cv_bridge::cv_bridge)
 target_link_libraries(test_profile ov_core_lib ${thirdparty_libraries})
 install(TARGETS test_profile DESTINATION lib/${PROJECT_NAME})
 

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.5)
 
 # Find ros dependencies
 find_package(ament_cmake REQUIRED)
@@ -45,10 +45,12 @@ list(APPEND LIBRARY_SOURCES
 )
 file(GLOB_RECURSE LIBRARY_HEADERS "src/*.h")
 add_library(ov_init_lib SHARED ${LIBRARY_SOURCES} ${LIBRARY_HEADERS})
-ament_target_dependencies(ov_init_lib rclcpp ov_core cv_bridge)
+target_link_libraries(ov_init_lib rclcpp::rclcpp ov_core::ov_core_lib cv_bridge::cv_bridge)
 target_link_libraries(ov_init_lib ${thirdparty_libraries})
-target_include_directories(ov_init_lib PUBLIC src/)
+target_include_directories(ov_init_lib PUBLIC PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/> $<INSTALL_INTERFACE:include>)
 install(TARGETS ov_init_lib
+        EXPORT ov_init
+        ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin
         PUBLIC_HEADER DESTINATION include
@@ -60,22 +62,24 @@ install(DIRECTORY src/
 ament_export_include_directories(include)
 ament_export_libraries(ov_init_lib)
 
+ament_export_targets(ov_init)
+
 ##################################################
 # Make binary files!
 ##################################################
 
 add_executable(test_simulation src/test_simulation.cpp)
-ament_target_dependencies(test_simulation ${ament_libraries})
+target_link_libraries(test_simulation ${ament_libraries})
 target_link_libraries(test_simulation ov_init_lib ${thirdparty_libraries})
 install(TARGETS test_simulation DESTINATION lib/${PROJECT_NAME})
 
 add_executable(test_dynamic_mle src/test_dynamic_mle.cpp)
-ament_target_dependencies(test_dynamic_mle ${ament_libraries})
+target_link_libraries(test_dynamic_mle ${ament_libraries})
 target_link_libraries(test_dynamic_mle ov_init_lib ${thirdparty_libraries})
 install(TARGETS test_dynamic_mle DESTINATION lib/${PROJECT_NAME})
 
 add_executable(test_dynamic_init src/test_dynamic_init.cpp)
-ament_target_dependencies(test_dynamic_init ${ament_libraries})
+target_link_libraries(test_dynamic_init ${ament_libraries})
 target_link_libraries(test_dynamic_init ov_init_lib ${thirdparty_libraries})
 install(TARGETS test_dynamic_init DESTINATION lib/${PROJECT_NAME})
 
